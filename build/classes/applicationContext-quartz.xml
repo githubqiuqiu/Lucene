@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<context:component-scan base-package="com.ht.quartz" />
+	
+	<!-- job -->
+	<bean id="simpleJobDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="myBean" />
+		<property name="targetMethod" value="printMessage" />
+	</bean>
+	
+
+	
+	<!-- 距离当前时间1秒之后执行，之后每隔两秒钟执行一次 -->
+	<bean id="mySimpleTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="simpleJobDetail" />
+		<property name="startDelay" value="1000" />
+		<property name="repeatInterval" value="2000" />
+	</bean>
+	
+		<!-- job -->
+	<bean id="firstComplexJobDetail"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass"
+			value="com.ht.quartz.FirstScheduledJob" />
+		<property name="jobDataMap">
+			<map>
+				<entry key="anotherBean" value-ref="anotherBean" />
+			</map>
+		</property>
+		<property name="Durability" value="true" />
+	</bean>
+	
+	<!-- 每隔5秒钟执行一次 -->
+	<bean id="myCronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="firstComplexJobDetail" />
+		<property name="cronExpression" value="0/5 * * ? * *" />
+	</bean>
+	
+	<!-- 运营报告   jobdetail -->
+	<bean id="ydateJobDetail"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass"
+			value="com.ht.quartz.YdataScheduleJob" />
+		<property name="jobDataMap">
+			<map>
+				<entry key="ydataBean" value-ref="ydataBean" />
+			</map>
+		</property>
+		<property name="Durability" value="true" />
+	</bean>
+	
+	
+	<!--运营报告的trigger  每个月的第一天0点00分 -->
+	<bean id="ydataCronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="ydateJobDetail" />
+		<property name="cronExpression" value="0 0 0 1 * ?" />
+	</bean>
+	
+	<!-- 流标 jobdetail -->
+	<bean id="flowsubjectJobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass"
+			value="com.ht.quartz.FlowsubjectScheduleJob" />
+		<property name="jobDataMap">
+			<map>
+				<entry key="flowsubjectbean" value-ref="flowsubjectbean" />
+			</map>
+		</property>
+		<property name="Durability" value="true" />
+	</bean>
+	
+	<!-- 流标 trigger 每天上午8点跑-->
+	<bean id="flowsubjectCronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="flowsubjectJobDetail" />
+		<property name="cronExpression" value="0 0 8 * * ?" />
+	</bean>
+	
+	<!-- 逾期 jobdetail -->
+	<bean id="overdueJobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass"
+			value="com.ht.quartz.OverdueSchedulerJob" />
+		<property name="jobDataMap">
+			<map>
+				<entry key="overduebean" value-ref="overduebean" />
+			</map>
+		</property>
+		<property name="Durability" value="true" />
+	</bean>
+	
+		<!-- 逾期 trigger 每天上午12点跑-->
+	<bean id="overdueCronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="overdueJobDetail" />
+		<property name="cronExpression" value="0 0 12 * * ?" />
+	</bean>
+	
+	
+	
+	<!-- scheduler:绑定jobdetail 和 trigger -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="jobDetails">
+			<list>
+<!-- 				<ref bean="simpleJobDetail" /> -->
+<!-- 				<ref bean="firstComplexJobDetail"/>  -->
+					<ref bean="ydateJobDetail" />
+	 				<ref bean="flowsubjectJobDetail"/> 
+ 					<ref bean="overdueJobDetail"/> 
+			</list>
+		</property>
+		<property name="triggers">
+			<list>
+<!-- 			    <ref bean="mySimpleTrigger" /> -->
+<!-- 				<ref bean="myCronTrigger" />  -->
+					<ref bean="ydataCronTrigger" />
+ 				<ref bean="flowsubjectCronTrigger"/> 
+ 					<ref bean="overdueCronTrigger" /> 
+			</list>
+		</property>
+	</bean>
+
+</beans>

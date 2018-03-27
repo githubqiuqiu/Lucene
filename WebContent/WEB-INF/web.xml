@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+  <display-name>Lucene</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+  
+  <!-- 配置springmvc -->
+   <servlet>
+  <servlet-name>springmvc</servlet-name>
+  <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+  <init-param>
+  <param-name>contextConfigLocation</param-name>
+  <param-value>classpath:spring-servlet.xml</param-value>
+  </init-param>
+  </servlet>
+  
+  <servlet-mapping>
+  <servlet-name>springmvc</servlet-name>
+  <url-pattern>/</url-pattern>
+  </servlet-mapping>
+  
+   
+  <!-- 加载spring -->
+  <listener>
+  <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+  
+  <context-param>
+  <param-name>contextConfigLocation</param-name>
+  <param-value>classpath:applicationContext.xml</param-value>
+  </context-param>
+  
+  <!-- 配置oscache缓存 -->
+  <filter>
+  <filter-name>oscache</filter-name>
+  <filter-class>com.opensymphony.oscache.web.filter.CacheFilter</filter-class>
+		<init-param>
+			<!-- 刷新缓存时间  -->
+			<param-name>time</param-name>
+			<param-value>10</param-value>
+		</init-param>
+	
+		<init-param>
+			<!-- 缓存存储位置  -->
+			<param-name>scope</param-name>
+			<param-value>application</param-value>
+		</init-param>
+  </filter>
+  
+    <filter-mapping>
+		<filter-name>oscache</filter-name>
+		<!-- 要缓存的请求 -->
+		<url-pattern>/index</url-pattern>
+	</filter-mapping>
+	
+  <!-- 过滤器设置编码 -->	
+  <filter>
+		<filter-name>characterEncoding</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+  </filter>
+	
+	<filter-mapping>
+		<filter-name>characterEncoding</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+  
+  
+  
+</web-app>

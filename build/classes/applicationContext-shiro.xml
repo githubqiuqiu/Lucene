@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- 引用Ehcache文件，把 Ehcache交给我们shiro-->
+	<bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager"> 
+	<property name="cacheManagerConfigFile" value="classpath:ehcache.xml">
+	</property>
+	</bean>
+	
+	<!-- 配置登入权限的自定义 -->
+	<bean id="myRealm" class="com.ht.shiro.realm.MyRealm">
+	 	<property name="credentialsMatcher">
+	 	<bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+	    	<property name="hashAlgorithmName" value="MD5"></property>
+	    	<!-- 指定加密的次数 -->
+			<property name="hashIterations" value="1"></property>
+	    </bean>
+	    </property>
+	</bean>
+    
+    <!-- 配置 Shiro 的 SecurityManager Bean. -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="cacheManager" ref="cacheManager"/>
+        <property name="realm" ref="myRealm"/>
+         <!-- 设置rememberme  记住我的时间    默认是31536000 单位是秒 (1年)-->
+        <property name="rememberMeManager.cookie.maxAge" value="60"></property>  
+    </bean>
+    
+    <!-- 配置 Bean 后置处理器: 会自动的调用和 Spring 整合后各个组件的生命周期方法. -->
+    <bean id="lifecycleBeanPostProcessor" 
+        class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+      
+    <!-- 配置 ShiroFilter bean: 该 bean 的 id 必须和 web.xml 文件中配置的 shiro filter 的 name 一致  -->
+   	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+       <!-- 装配 securityManager -->
+       <property name="securityManager" ref="securityManager"/>
+       <!-- 配置登陆页面 -->
+        <property name="loginUrl" value="/huser/login"/> 
+       <!-- 登陆成功后的一面 -->
+       <property name="successUrl" value="/huser/index"/>
+       <!-- 没有权限的页面 -->
+       <property name="unauthorizedUrl" value="/huser/unauthorized"/>
+       <!-- 具体配置需要拦截哪些 URL, 以及访问对应的 URL 时使用 Shiro 的什么 Filter 进行拦截.  -->
+       <property name="filterChainDefinitions">
+           <value>
+           	    <!-- 
+                   anon  不需要认证
+                   authc 需要认证
+                   user  验证通过或RememberMe登录的都可以
+                -->	
+           		
+           		
+               /js/** = anon
+               /jpg/** = anon
+               /huser/login = anon
+               /huser/provinglogin = anon
+               /huser/** = user
+           </value>
+       </property>
+       
+
+   </bean>
+    
+    </beans>

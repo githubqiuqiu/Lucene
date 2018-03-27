@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/mvc 
+    http://www.springframework.org/schema/mvc/spring-mvc.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop.xsd">
+    
+    <!-- 配置渲染器 配置视图解析器 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+	
+	<!-- 加载controller 扫描包下的注解 -->
+    <context:component-scan base-package="com.ht.controller"></context:component-scan>
+	
+	<!-- 加载驱动 扩展了注解驱动  可以将请求参数绑定到控制器参数 -->
+    <mvc:annotation-driven conversion-service="conversionService"/>
+    
+    <!-- 设置静态资源不被拦截 -->
+    <mvc:resources mapping="/resource/**" location="/resource/"/>
+    
+    
+    <!-- 配置时间类型转换器 -->
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <ref bean="dateConvert" />
+            </set>
+        </property>
+    </bean>
+    <bean id="dateConvert" class="com.ht.util.DateUtil" />
+    
+     <!-- 配置文件上传解析器 -->
+     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- set the max upload size100MB -->
+        <property name="maxUploadSize">
+            <value>10240000</value>
+        </property>
+        <property name="maxInMemorySize">
+            <value>4096</value>
+        </property>
+    </bean>
+    
+     <!-- 配置json数据 -->
+     <mvc:annotation-driven>
+        <mvc:message-converters register-defaults="false">
+            <!-- 将StringHttpMessageConverter的默认编码设为UTF-8 -->
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <constructor-arg value="UTF-8"/>
+            </bean>
+            <ref bean="jacksonMessageConverter" />
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <bean id="jacksonMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+        <property name="supportedMediaTypes">
+            <list>
+                <value>text/html;charset=UTF-8</value>
+                <value>application/json;charset=UTF-8</value>
+            </list>
+        </property>
+    </bean>
+    
+    
+    </beans>
